@@ -1,0 +1,34 @@
+---
+name: "image creation for lakme"
+on:
+  push:
+    branches:
+      - prod
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.accesskey }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.secretkey }}
+      AWS_DEFAULT_REGION: ${{ secrets.region }}
+      packer_version: "1.9.4"
+
+    steps:
+
+      - name: "checkout repo"
+        uses: actions/checkout@v3
+
+      - name: "Packer installation"
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: ${{ env.packer_version }}
+      - name: "packer init"
+        run: packer init .
+        working-directory: ./packer/
+      - name: "packer validate"
+        run: packer validate .
+        working-directory: ./packer/
+      - name: "packer build image"
+        run: packer build .
+        working-directory: ./packer/
